@@ -58,7 +58,7 @@ fn day1_part2(file_path: &str) -> Result<i32, Error> {
             match line.find(key) {
                 None => (),
                 Some(x) => {
-                    if (x < first.ix) {
+                    if x < first.ix {
                         first = IxAndDigit {ix: x, digit: str_matches[key]};
                     }
                 }
@@ -66,7 +66,7 @@ fn day1_part2(file_path: &str) -> Result<i32, Error> {
             match line.rfind(key) {
                 None => (),
                 Some(x) =>{
-                    if (x > last.ix) {
+                    if x > last.ix {
                         last = IxAndDigit {ix: x, digit: str_matches[key]};
                     }
                 }
