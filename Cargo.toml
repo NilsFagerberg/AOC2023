@@ -4,7 +4,7 @@ version = "1.0.0"
 
 [[bin]]
 name = "day1"
-path = "Day1/src/main.rs"
+path = "day1/src/main.rs"
 
 [[bin]]
 name = "day2"
