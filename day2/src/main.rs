@@ -40,7 +40,7 @@ fn day2_part2(file_path: &str) -> Result<i32, Error> {
 
     let mut sum = 0;
 
-    for (i, line) in file.lines().enumerate() {
+    for (_i, line) in file.lines().enumerate() {
         let ix = line.find(": ").expect("Malformed input!");
         let substr = &line[ix+2..];
 
