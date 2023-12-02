@@ -1,5 +1,5 @@
 [package]
-name = "Day1"
+name = "AOC2023"
 version = "1.0.0"
 
 [[bin]]
