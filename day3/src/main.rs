@@ -1,4 +1,4 @@
-use std::{io::Error, collections::HashMap, cmp::{min, max}};
+use std::{io::Error, collections::BTreeMap, cmp::{min, max}};
 
 fn day3_part1(file_path: &str) -> Result<usize, Error> {
 
@@ -6,17 +6,18 @@ fn day3_part1(file_path: &str) -> Result<usize, Error> {
 
     let mut sum = 0;
 
-    let mut potential_parts: Vec<HashMap<usize, String>> = Vec::new();
-    let mut symbols: Vec<HashMap<usize, String>> = Vec::new();
+    let mut potential_parts: Vec<BTreeMap<usize, String>> = Vec::new();
+    let mut symbols: Vec<BTreeMap<usize, String>> = Vec::new();
 
     // line e.g. "......832....@..........*.951*....984*111..801"
     for (i, line) in file.lines().enumerate() {
         let splits = line.split('.').filter(|s|!s.is_empty());
 
-        let mut potential_parts_line: HashMap<usize, String> = HashMap::new();
-        let mut symbols_line: HashMap<usize, String> = HashMap::new();
+        let mut potential_parts_line: BTreeMap<usize, String> = BTreeMap::new();
+        let mut symbols_line: BTreeMap<usize, String> = BTreeMap::new();
         
         // split e.g. "832" or "984*111"
+        // TODO: rewrite this shit without the indices
         for split in splits {
             let mut found_digits = String::new();
 
@@ -25,44 +26,49 @@ fn day3_part1(file_path: &str) -> Result<usize, Error> {
                     found_digits.push(c);
                 } else {
                     if !found_digits.is_empty() {
-                        // println!("number found: {}", found_digits);
-                        for found in line.match_indices(found_digits.as_str()) {
-                            potential_parts_line.insert(found.0, found.1.to_string());
+                        let num_str = found_digits.as_str();
+                        for found in line.match_indices(num_str) {
+                            if (potential_parts_line.contains_key(&found.0)) {
+                                if (num_str.len() > found.1.len()) {
+                                    potential_parts_line.insert(found.0, num_str.to_string());
+                                }
+                            } else {
+                                potential_parts_line.insert(found.0, found.1.to_string());
+                            }
                         }
                         found_digits.clear();
                     }
                     for found in line.match_indices(c) {
-                        // println!("Symbol found: {c}");
                         symbols_line.insert(found.0, found.1.to_string());
                     }
                 }
             }
             if !found_digits.is_empty() {
-                // println!("number found: {}", found_digits);
-                for found in line.match_indices(found_digits.as_str()) {
-                    potential_parts_line.insert(found.0, found.1.to_string());
+                let num_str = found_digits.as_str();
+                for found in line.match_indices(num_str) {
+                    if (potential_parts_line.contains_key(&found.0)) {
+                        if (num_str.len() > found.1.len()) {
+                            potential_parts_line.insert(found.0, num_str.to_string());
+                        }
+                    } else {
+                        potential_parts_line.insert(found.0, found.1.to_string());
+                    }
                 }
             }
+            found_digits.clear();
         }
 
         potential_parts.push(potential_parts_line);
         symbols.push(symbols_line);
-        /*
-        for entry in potential_parts_line {
-            println!("potential parts found for line {i}: {}, {}", entry.0, entry.1);
-        }
-        for entry in symbols_line {
-            println!("symbols found for line {i}: {}, {}", entry.0, entry.1);
-        }
-        */
+
     } // Parsing done
 
     let lines: Vec<&str> = file.lines().collect();
     assert_eq!(potential_parts.len(), lines.len());
 
     for (i, parts_per_line) in potential_parts.iter().enumerate() {
-        'next_part: for potential_part in parts_per_line {
 
+        for potential_part in parts_per_line {
             let temp = potential_part.1.len() + potential_part.0 + 1;
             let part_number = potential_part.1.parse::<usize>().expect("NaN!");
 
@@ -77,30 +83,27 @@ fn day3_part1(file_path: &str) -> Result<usize, Error> {
                 let relevant_substr = &lines[i - 1][search_start..search_end];
                 if relevant_substr.contains(|c: char|!c.is_ascii_digit() && c != '.') {
                     sum += part_number;
-                    continue 'next_part;
+                    continue;
                 }
             }
             // skip checking "below" last line
-            if i < potential_parts.len() {
+            if i < potential_parts.len() - 1 {
                 let relevant_substr = &lines[i + 1][search_start..search_end];
                 if relevant_substr.contains(|c: char|!c.is_ascii_digit() && c != '.') {
                     sum += part_number;
-                    continue 'next_part;
+                    continue;
                 }
             }
 
-            if search_start != 0 {
-                let first = lines[i].chars().nth(search_start).expect("OOB!");
-                if (!first.is_ascii_digit() && first != '.') {
-                    sum += part_number;
-                    continue 'next_part;
-                }
+            let relevant_substr = &lines[i][search_start..search_end];
+            if (relevant_substr.starts_with(|c: char|!c.is_ascii_digit() && c != '.')) {
+                sum += part_number;
+                continue;
             }
-            if search_end != lines[i].len() {
-                let last = lines[i].chars().nth(search_end).expect("OOB!");
-                if (!last.is_ascii_digit() && last != '.') {
-                    sum += part_number;
-                }
+
+            if (relevant_substr.ends_with(|c: char|!c.is_ascii_digit() && c != '.')) {
+                sum += part_number;
+                continue;
             }
         }
     }
@@ -115,7 +118,7 @@ fn main() {
 
     // Part 2
     //let res_part2 = day2_part2("day2/input/actual.txt").expect("An error occurred!");
-    //println!("part 2 sum: {res_part2}");
+    // println!("part 2 sum: {res_part2}");
 }
 
 #[test]
