@@ -10,7 +10,7 @@ fn day3_part1(file_path: &str) -> Result<usize, Error> {
     let mut symbols: Vec<BTreeMap<usize, String>> = Vec::new();
 
     // line e.g. "......832....@..........*.951*....984*111..801"
-    for (i, line) in file.lines().enumerate() {
+    for (_i, line) in file.lines().enumerate() {
 
         let mut potential_parts_line: BTreeMap<usize, String> = BTreeMap::new();
         let mut symbols_line: BTreeMap<usize, String> = BTreeMap::new();
@@ -19,25 +19,25 @@ fn day3_part1(file_path: &str) -> Result<usize, Error> {
         let mut digit_ix = 0;
 
         for (j, c) in line.chars().enumerate() {
-            if (c.is_ascii_digit()) {
-                if (found_digits.is_empty()) {
+            if c.is_ascii_digit() {
+                if found_digits.is_empty() {
                     digit_ix = j;
                 }
                 found_digits.push(c);
                 continue;
             }
-            if (!found_digits.is_empty()) {
+            if !found_digits.is_empty() {
                 potential_parts_line.insert(digit_ix, found_digits.clone());
                 digit_ix = 0;
                 found_digits.clear();
             }
-            if (c == '.') {
+            if c == '.' {
                 continue;
             }
             symbols_line.insert(j, c.to_string());
 
         }
-        if (!found_digits.is_empty()) {
+        if !found_digits.is_empty() {
             potential_parts_line.insert(digit_ix, found_digits.clone());
             digit_ix = 0;
             found_digits.clear();
@@ -81,12 +81,12 @@ fn day3_part1(file_path: &str) -> Result<usize, Error> {
             }
 
             let relevant_substr = &lines[i][search_start..search_end];
-            if (relevant_substr.starts_with(|c: char|!c.is_ascii_digit() && c != '.')) {
+            if relevant_substr.starts_with(|c: char|!c.is_ascii_digit() && c != '.') {
                 sum += part_number;
                 continue;
             }
 
-            if (relevant_substr.ends_with(|c: char|!c.is_ascii_digit() && c != '.')) {
+            if relevant_substr.ends_with(|c: char|!c.is_ascii_digit() && c != '.') {
                 sum += part_number;
                 continue;
             }
@@ -106,7 +106,7 @@ fn day3_part2(file_path: &str) -> Result<usize, Error> {
     let mut symbols: Vec<BTreeMap<usize, String>> = Vec::new();
 
     // line e.g. "......832....@..........*.951*....984*111..801"
-    for (i, line) in file.lines().enumerate() {
+    for (_i, line) in file.lines().enumerate() {
 
         let mut potential_parts_line: BTreeMap<usize, String> = BTreeMap::new();
         let mut symbols_line: BTreeMap<usize, String> = BTreeMap::new();
@@ -115,27 +115,27 @@ fn day3_part2(file_path: &str) -> Result<usize, Error> {
         let mut digit_ix = 0;
 
         for (j, c) in line.chars().enumerate() {
-            if (c.is_ascii_digit()) {
-                if (found_digits.is_empty()) {
+            if c.is_ascii_digit() {
+                if found_digits.is_empty() {
                     digit_ix = j;
                 }
                 found_digits.push(c);
                 continue;
             }
-            if (!found_digits.is_empty()) {
+            if !found_digits.is_empty() {
                 potential_parts_line.insert(digit_ix, found_digits.clone());
                 digit_ix = 0;
                 found_digits.clear();
             }
-            if (c == '.') {
+            if c == '.' {
                 continue;
             }
-            if (c == '*') {
+            if c == '*' {
                 symbols_line.insert(j, c.to_string());
             }
 
         }
-        if (!found_digits.is_empty()) {
+        if !found_digits.is_empty() {
             potential_parts_line.insert(digit_ix, found_digits.clone());
             digit_ix = 0;
             found_digits.clear();
@@ -187,7 +187,7 @@ fn day3_part2(file_path: &str) -> Result<usize, Error> {
                         (k >= &&search_start && k <= &&search_end)
                     });
                     for key in keys {
-                        if (num_matches < 2) {
+                        if num_matches < 2 {
                             matches[num_matches] = potential_parts[line_ix][key].parse::<usize>().expect("NaN!");
                             num_matches += 1;
                         } else {
@@ -199,11 +199,11 @@ fn day3_part2(file_path: &str) -> Result<usize, Error> {
 
             let relevant_substr = &lines[i][search_start..search_end + 1];
 
-            if (relevant_substr.starts_with(|c: char|c.is_ascii_digit())) {
+            if relevant_substr.starts_with(|c: char|c.is_ascii_digit()) {
                 let key = potential_parts[i].keys().find(|k| {
                     *k + potential_parts[i][k].len() - 1 == search_start
                 }).expect("Nan!");
-                if (num_matches < 2) {
+                if num_matches < 2 {
                     matches[num_matches] = potential_parts[i][key].parse::<usize>().expect("NaN!");
                     num_matches += 1;
                 } else {
@@ -211,7 +211,7 @@ fn day3_part2(file_path: &str) -> Result<usize, Error> {
                 }
             }
 
-            if (relevant_substr.ends_with(|c: char|c.is_ascii_digit())) {
+            if relevant_substr.ends_with(|c: char|c.is_ascii_digit()) {
                 if num_matches < 2 {
                     matches[num_matches] = potential_parts[i][&search_end].parse::<usize>().expect("NaN!");
                     num_matches += 1;
