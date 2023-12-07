@@ -1,4 +1,4 @@
-use std::{io::Error, collections::BTreeMap, cmp::{min, max}};
+use std::{io::Error, collections::BTreeMap, cmp::min};
 
 fn day3_part1(file_path: &str) -> Result<usize, Error> {
 
@@ -61,7 +61,7 @@ fn day3_part1(file_path: &str) -> Result<usize, Error> {
                 0 => 0,
                 x => x - 1
             };
-            let search_end = min(lines[i].len(), temp);
+            let search_end = min(lines[i].len() - 1, temp);
 
             // skip checking "above" first line
             if i > 0 {
@@ -147,13 +147,86 @@ fn day3_part2(file_path: &str) -> Result<usize, Error> {
     } // Parsing done
 
     let lines: Vec<&str> = file.lines().collect();
+    let line_len = lines[0].len();
 
     for (i, gears_per_line) in symbols.iter().enumerate() {
-        for gear in gears_per_line {
-            
+        'next_gear: for gear in gears_per_line {
+
+            let search_start = match gear.0 {
+                0 => 0,
+                x => x - 1
+            };
+            let search_end = min(line_len - 1, gear.0 + 1);
+
+            let mut num_matches = 0;
+            let mut matches = [0, 0];
+
+            // skip checking "above" first line
+            if i > 0 {
+                let line_ix = i - 1;
+                let relevant_substr = &lines[line_ix][search_start..search_end + 1];
+                if relevant_substr.contains(|c: char|c.is_ascii_digit()) {
+                    let keys = potential_parts[line_ix].keys().filter(|k| {
+                        (k <= &&search_start &&  *k + &potential_parts[line_ix][k].len() - 1 >= search_start) ||
+                        (k >= &&search_start && k <= &&search_end)
+                    });
+                    for key in keys {
+                        // two matches maximum, so no need to check num_matches here
+                        matches[num_matches] = potential_parts[line_ix][key].parse::<usize>().expect("NaN!");
+                        num_matches += 1;
+                    }
+                }
+            }
+            // skip checking "below" last line
+            if i < line_len - 1 {
+                let line_ix = i + 1;
+                let relevant_substr = &lines[line_ix][search_start..search_end + 1];
+                if relevant_substr.contains(|c: char|c.is_ascii_digit()) {
+                    let keys = potential_parts[line_ix].keys().filter(|k| {
+                        (k <= &&search_start &&  *k + &potential_parts[line_ix][k].len() - 1 >= search_start) ||
+                        (k >= &&search_start && k <= &&search_end)
+                    });
+                    for key in keys {
+                        if (num_matches < 2) {
+                            matches[num_matches] = potential_parts[line_ix][key].parse::<usize>().expect("NaN!");
+                            num_matches += 1;
+                        } else {
+                            continue 'next_gear;
+                        }
+                    }
+                }
+            }
+
+            let relevant_substr = &lines[i][search_start..search_end + 1];
+
+            if (relevant_substr.starts_with(|c: char|c.is_ascii_digit())) {
+                let key = potential_parts[i].keys().find(|k| {
+                    *k + potential_parts[i][k].len() - 1 == search_start
+                }).expect("Nan!");
+                if (num_matches < 2) {
+                    matches[num_matches] = potential_parts[i][key].parse::<usize>().expect("NaN!");
+                    num_matches += 1;
+                } else {
+                    continue 'next_gear;
+                }
+            }
+
+            if (relevant_substr.ends_with(|c: char|c.is_ascii_digit())) {
+                if num_matches < 2 {
+                    matches[num_matches] = potential_parts[i][&search_end].parse::<usize>().expect("NaN!");
+                    num_matches += 1;
+                } else {
+                    continue 'next_gear;
+                }
+            }
+
+            if num_matches == 2 {
+                sum += matches[0] * matches[1];
+            }
         }
-    } 
-    Ok(2)
+    }
+
+    Ok(sum)
 }
 
 fn main() {
@@ -162,8 +235,8 @@ fn main() {
     println!("part 1 sum: {res_part1}");
 
     // Part 2
-    //let res_part2 = day2_part2("day2/input/actual.txt").expect("An error occurred!");
-    // println!("part 2 sum: {res_part2}");
+    let res_part2 = day3_part2("day3/input/actual.txt").expect("An error occurred!");
+    println!("part 2 sum: {res_part2}");
 }
 
 #[test]
